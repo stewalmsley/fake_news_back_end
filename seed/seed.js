@@ -17,6 +17,7 @@ const seedDB = ({articleData, commentData, topicData, userData}) => {
         return Promise.all([topicDocs, userDocs, userRef, articleInsertions])
     })
     .then(([topicDocs, userDocs, userRef, articleDocs]) => {
+        console.log(articleDocs)
         const articleRef = createRef(articleData, articleDocs, 'title');
         const formattedCommentData = formatCommentData(commentData, userRef, articleRef)
         return Comment.insertMany(formattedCommentData);
