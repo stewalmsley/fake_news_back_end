@@ -39,7 +39,11 @@ Data has been provided for both testing and development environments so you will
 2.  Mount an API Router onto your app
 3.  Define the routes described below
 4.  Define controller functions for each of your routes (remember to use `.populate` for `created_by` and `belongs_to` fields that are mongo ids! This will be extremely useful when you are working on the front-end!)
+
+*** haven't done this
 5.  You will also need to return a `comment_count` property on all your endpoints that return articles. Attempt it on a single article first, then apply it to your all articles endpoint and finally your post new article. This is a great challenge to help consolidate your understanding of promises. (Note: do __not__ change the models to have a `comment_count` value in the database!)
+
+
 6.  Use proper project configuration from the offset, being sure to treat development and test differently.
 7.  Test each route as you go. Remember to test the happy and the unhappy paths! Make sure your error messages are helpful and your error status codes are chosen correctly. Remember to seed the test database using the seeding function and make the saved data available to use within your test suite.
 
@@ -51,70 +55,73 @@ Data has been provided for both testing and development environments so you will
 Your server should have the following end-points:
 
 ```http
-GET /api 
+GET /api ************ NOT DONE ***
 # Serves an HTML page with documentation for all the available endpoints
 ```
 
 ```http
-GET /api/topics
+GET /api/topics    **done** **tested** needs error handling
 # Get all the topics
 ```
 
-```http
+```http **** done and tested but needs error handling ***
 GET /api/topics/:topic_slug/articles
 # Return all the articles for a certain topic
 # e.g: `/api/topics/football/articles`
 ```
 
-```http
+```http    ***** done and tested - needs error handling, also maybe need to check new length of all relevant articles?
 POST /api/topics/:topic_slug/articles
 # Add a new article to a topic. This route requires a JSON body with title and body key value pairs
 # e.g: `{ "title": "new article", "body": "This is my new article content", "created_by": "user_id goes here"}`
 ```
 
-```http
-GET /api/articles
+```http 
+GET /api/articles   *** done and tested, needs error handling
 # Returns all the articles
 ```
 
-```http
+```http             *** done and tested, needs error handling
 GET /api/articles/:article_id
 # Get an individual article
 ```
 
-```http
+```http              *** done and tested, needs error handling
 GET /api/articles/:article_id/comments
 # Get all the comments for a individual article
 ```
 
 ```http
-POST /api/articles/:article_id/comments
+POST /api/articles/:article_id/comments  *** done and tested - needs error handling, also
+maybe need to check new length of full comments?
 # Add a new comment to an article. This route requires a JSON body with body and created_by key value pairs
 # e.g: `{"body": "This is my new comment", "created_by": "user_id goes here"}`
 ```
 
 ```http
-PATCH /api/articles/:article_id
+PATCH /api/articles/:article_id    *** done and tested - needs error handling and check status code
 # Increment or Decrement the votes of an article by one. This route requires a vote query of 'up' or 'down'
 # e.g: `/api/articles/:article_id?vote=up`
 ```
 
 ```http
-PATCH /api/comments/:comment_id
+PATCH /api/comments/:comment_id    *** done and tested - needs error handling, check status code
 # Increment or Decrement the votes of a comment by one. This route requires a vote query of 'up' or 'down'
 # e.g: `/api/comments/:comment_id?vote=down`
 ```
 
-```http
+```http    **** done and tested - needs error handling, check stastus code, maybe also check new length of comments?
 DELETE /api/comments/:comment_id
 # Deletes a comment
 ```
 
-```http
+```http     *** done and tested - needs error handling
 GET /api/users/:username
 # e.g: `/api/users/mitch123`
 # Returns a JSON object with the profile data for the specified user.
 ```
+
+**** done the below and adapted test
 
 NOTE: When it comes to building your front end you'll find it extremely useful if your POST comment endpoint returns the new comment with the created_by property populated with the corresponding user object.
 
