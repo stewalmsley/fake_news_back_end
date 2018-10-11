@@ -38,9 +38,9 @@ describe('/api', () => {
         return request.get(`/api/topics/cats/articles`)
         .expect(200)
         .then(res => {
-          expect(res.body.articles[0]).to.be.an("object");
-          expect(res.body.articles).to.have.length(2);
-          expect(res.body.articles[0].title).to.equal("They're not exactly dogs, are they?")
+          expect(res.body.articlesWithCommentCounts[0]).to.be.an("object");
+          expect(res.body.articlesWithCommentCounts).to.have.length(2);
+          expect(res.body.articlesWithCommentCounts[0].title).to.equal("They're not exactly dogs, are they?")
         })
       })
       it('GET returns 404 when the topic slug is not found', () => {
@@ -88,11 +88,12 @@ describe('/api', () => {
       it('GET returns 200 and the correct fields', () => {
         return request.get(`/api/articles`)
           .expect(200)
-          .then(res => {
-            expect(res.body.articles[0]).to.be.an("object");
-            expect(res.body.articles).to.have.length(4);
-            expect(res.body.articles[2].title).to.equal("They're not exactly dogs, are they?");
-            expect(res.body.articles[0].title).to.equal(article.title);
+          .then(({ body }) => {
+            expect(body.articlesWithCommentCounts[0]).to.be.an("object");
+            expect(body.articlesWithCommentCounts).to.have.length(4);
+            expect(body.articlesWithCommentCounts[2].title).to.equal("They're not exactly dogs, are they?");
+            expect(body.articlesWithCommentCounts[0].title).to.equal(article.title);
+            expect(body.articlesWithCommentCounts[1].commentCount).to.equal(2);
           })
       })
     })

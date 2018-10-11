@@ -1,9 +1,13 @@
 const { Article, Comment }  = require('../models')
 
 exports.sendAllArticles = (request, response, next) => {
-    Article.find()
-    .then(articles => {
-        response.status(200).send({ articles })
+    return Promise.all([Article.find().lean(), Comment.find().lean()])
+    .then(([articles, comments]) => {
+        const articlesWithCommentCounts = articles.map(article => {
+            const commentCount = comments.filter(comment => comment.belongs_to.toString() === article._id.toString()).length;
+            return {...article, commentCount}
+        })
+        response.status(200).send({ articlesWithCommentCounts })
     })
     .catch(next);
 }

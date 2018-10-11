@@ -1,4 +1,4 @@
-const { Topic, Article }  = require('../models')
+const { Topic, Article, Comment }  = require('../models')
 
 exports.sendAllTopics = (request, response, next) => {
     Topic.find()
@@ -9,12 +9,19 @@ exports.sendAllTopics = (request, response, next) => {
 }
 
 exports.sendArticlesByTopic = (request, response, next) => {
-    Article.find({belongs_to: request.params.topic_slug})
+    Article.find({belongs_to: request.params.topic_slug}).lean()
     .then(articles => {
+        const commentsByArticle = articles.map(article => {
+            return Comment.find({belongs_to: article._id}).lean()
+        })
+        return Promise.all([articles, commentsByArticle])
+    })
+    .then(([articles, comments]) => {
+        console.log(comments)
         if (!articles.length) {
             return Promise.reject({ status: 404, msg: `no articles found on ${request.params.topic_slug}`})
         }
-        response.status(200).send({ articles })
+        response.status(200).send({ articlesWithCommentCounts })
     })
     .catch(next);
 }
