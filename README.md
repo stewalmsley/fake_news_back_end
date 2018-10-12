@@ -60,7 +60,7 @@ GET /api ************ NOT DONE ***
 ```
 
 ```http
-GET /api/topics    **done** **tested** needs error handling
+GET /api/topics    **done** 
 # Get all the topics
 ```
 
@@ -70,52 +70,51 @@ GET /api/topics/:topic_slug/articles
 # e.g: `/api/topics/football/articles`
 ```
 
-```http    ***** done and tested - needs error handling, also maybe need to check new length of all relevant articles?
+```http    ***** done ***
 POST /api/topics/:topic_slug/articles
 # Add a new article to a topic. This route requires a JSON body with title and body key value pairs
 # e.g: `{ "title": "new article", "body": "This is my new article content", "created_by": "user_id goes here"}`
 ```
 
 ```http 
-GET /api/articles   *** done and tested, needs error handling
+GET /api/articles   *** done ***
 # Returns all the articles
 ```
 
-```http             *** done and tested, needs error handling
+```http             *** done ***
 GET /api/articles/:article_id
 # Get an individual article
 ```
 
-```http              *** done and tested, needs error handling
+```http              *** done ***
 GET /api/articles/:article_id/comments
 # Get all the comments for a individual article
 ```
 
 ```http
-POST /api/articles/:article_id/comments  *** done and tested - needs error handling, also
-maybe need to check new length of full comments?
+POST /api/articles/:article_id/comments  **** done ***
 # Add a new comment to an article. This route requires a JSON body with body and created_by key value pairs
 # e.g: `{"body": "This is my new comment", "created_by": "user_id goes here"}`
 ```
 
 ```http
-PATCH /api/articles/:article_id    *** done and tested - needs error handling and check status code
+PATCH /api/articles/:article_id    *** done ***
 # Increment or Decrement the votes of an article by one. This route requires a vote query of 'up' or 'down'
 # e.g: `/api/articles/:article_id?vote=up`
 ```
 
 ```http
-PATCH /api/comments/:comment_id    *** done and tested - needs error handling, check status code
+PATCH /api/comments/:comment_id    *** done ***
 # Increment or Decrement the votes of a comment by one. This route requires a vote query of 'up' or 'down'
 # e.g: `/api/comments/:comment_id?vote=down`
 ```
 
-```http    **** done and tested - needs error handling, check stastus code, maybe also check new length of comments?
+```http    **** done ***
 DELETE /api/comments/:comment_id
 # Deletes a comment
 ```
 
-```http     *** done and tested - needs error handling
+```http     *** should i be using populate here to get all the comments + articles for the user? ***
 GET /api/users/:username
 # e.g: `/api/users/mitch123`
 # Returns a JSON object with the profile data for the specified user.

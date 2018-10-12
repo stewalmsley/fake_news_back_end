@@ -27,7 +27,10 @@ exports.addCommentToArticle = (request, response, next) => {
             response.status(201).send({ comment })
         })
         .catch(err => {
-            if (err.name === 'ValidationError') next({status: 400, msg: err.message})
+            if (err.name === 'BulkWriteError') {
+                next({ status: 409, msg: 'Comment already exists'})
+            }
+            else if (err.name === 'ValidationError') next({status: 400, msg: err.message})
             else next(err);
         })
     })
@@ -38,12 +41,13 @@ exports.updateCommentVotes = (request, response, next) => {
     if (request.query.vote === 'up') increment = 1 
     if (request.query.vote === 'down') increment = -1;
     Comment.findOneAndUpdate({_id: request.params.comment_id}, {$inc: {votes: increment} }, {new: true})
-    .then(comment => {
-        if (!comment) {
-            return Promise.reject({ status: 404, msg: `${request.params.comment_id} not found`})
-        }
-        response.status(201).send({ comment })
-    })
+        .then(comment => {
+            if (!comment) {
+                return Promise.reject({ status: 404, msg: `${request.params.comment_id} not found`})
+            }
+            if (!increment) response.status(204).send({ comment })
+            else response.status(200).send({ comment })
+        })
     .catch(err => {
         if (err.name === 'CastError') next({status: 400, msg: 'Invalid Comment ID'});
         else next(err);
@@ -56,7 +60,7 @@ exports.deleteComment = (request, response, next) => {
         if (!comment) {
             return Promise.reject({ status: 404, msg: `${request.params.comment_id} not found`})
         }
-        response.status(201).send('removed record')
+        response.status(200).send('removed record')
     })
     .catch(err => {
         if (err.name === 'CastError') next({status: 400, msg: 'Invalid Comment ID'});

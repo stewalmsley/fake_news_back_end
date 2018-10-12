@@ -5,12 +5,19 @@ const request = require('supertest')(app);
 const mongoose = require('mongoose');
 const data = require('../seed/testData')
 const seedDB = require ('../seed/seed');
+const { Article, Comment, Topic, User }  = require('../models')
+
 
 describe('/api', () => {
   beforeEach(() => {
     return seedDB(data)
     .then(docs => {
       [topic, article, user, comment] = docs;
+    })
+  })
+  after(() => {
+    mongoose.connection.close(() => {
+    console.log('Test database connection closed');
     })
   })
   it('returns 404 for any method on a non-existent URL', () => {
@@ -34,14 +41,16 @@ describe('/api', () => {
       });
     })
     describe('/:topic_slug/articles', () => {
-      it('GET returns 200 and the correct articles', () => {
+      it('GET returns 200 and the correct articles with comment counts', () => {
         return request.get(`/api/topics/cats/articles`)
         .expect(200)
-        .then(res => {
-          expect(res.body.articlesWithCommentCounts[0]).to.be.an("object");
-          expect(res.body.articlesWithCommentCounts).to.have.length(2);
-          expect(res.body.articlesWithCommentCounts[0].title).to.equal("They're not exactly dogs, are they?")
-        })
+        .then(({ body }) => {
+          expect(body.articlesWithCommentCounts[0]).to.be.an("object");
+          expect(body.articlesWithCommentCounts).to.have.length(2);
+          expect(body.articlesWithCommentCounts[0].title).to.equal("They're not exactly dogs, are they?");
+          expect(body.articlesWithCommentCounts[0].commentCount).to.equal(2);
+          expect(body.articlesWithCommentCounts[1].commentCount).to.equal(2);
+        });
       })
       it('GET returns 404 when the topic slug is not found', () => {
         return request.get(`/api/topics/postmodernism/articles`)
@@ -50,7 +59,7 @@ describe('/api', () => {
             expect(body.msg).to.equal(`no articles found on postmodernism`);
           })
       })
-      it('POST returns 201 and adds the article', () => {
+      it('POST returns 201 and adds the article with a comment count', () => {
         const newArticle = {
           "title": "UNCOVERED: catspiracy to bring down totalitarianism",
           "created_by": `${user._id}`,
@@ -61,11 +70,16 @@ describe('/api', () => {
         .send(newArticle)
         .expect(201)
         .then(({ body }) => {
-          expect(body.article).to.be.an("object");
-          expect(body.article.title).to.equal("UNCOVERED: catspiracy to bring down totalitarianism");
-          expect(body.article.belongs_to).to.equal('cats');
-          expect(body.article.created_by).to.equal(`${user._id}`);
+          expect(body.articleWithCommentCount).to.be.an("object");
+          expect(body.articleWithCommentCount.title).to.equal("UNCOVERED: catspiracy to bring down totalitarianism");
+          expect(body.articleWithCommentCount.belongs_to).to.equal('cats');
+          expect(body.articleWithCommentCount.created_by).to.equal(`${user._id}`);
+          expect(body.articleWithCommentCount.commentCount).to.equal(0);
+          return Article.count({ belongs_to: 'cats' })
         })
+          .then (articleCount => {
+            expect(articleCount).to.equal(3);
+          })
       })
       it('POST returns 400 when the provided article fails validation rules', () => {
         const badArticle = {
@@ -81,11 +95,20 @@ describe('/api', () => {
         expect(body.msg.slice(0,27)).to.equal('articles validation failed:')
       })
       })
+      it('POST returns 409 when the provided article already exists', () => {
+      return request
+      .post('/api/topics/cats/articles/')
+      .send(article)
+      .expect(409)
+      .then(({ body }) => {
+        expect(body.msg).to.equal('Article already exists')
+      })
+      })
     })
   })
   describe('/articles', () => {
     describe('/', () => {
-      it('GET returns 200 and the correct fields', () => {
+      it('GET returns 200 and the correct fields including comment counts', () => {
         return request.get(`/api/articles`)
           .expect(200)
           .then(({ body }) => {
@@ -101,11 +124,11 @@ describe('/api', () => {
       it('GET returns 200 and the provided article, with the comment count', () => {
         return request.get(`/api/articles/${article._id}`)
           .expect(200)
-          .then(res => {
-            expect(res.body.article).to.be.an("object");
-            expect(res.body.article.title).to.equal(article.title);
-            expect(res.body.article._id).to.equal(`${article._id}`);
-            expect(res.body.commentCount).to.equal(2);
+          .then(({ body }) => {
+            expect(body.articleWithCommentCount).to.be.an("object");
+            expect(body.articleWithCommentCount.title).to.equal(article.title);
+            expect(body.articleWithCommentCount._id).to.equal(`${article._id}`);
+            expect(body.articleWithCommentCount.commentCount).to.equal(2);
           })
       })
       it('GET returns 400 when an invalid ID is provided', () => {
@@ -122,18 +145,20 @@ describe('/api', () => {
             expect(body.msg).to.equal(`${topic._id} not found`);
           })
       })
-      it('PATCH returns 201 and handles upvotes correctly', () => {
+      it('PATCH returns 200 and handles upvotes correctly', () => {
         return request.patch(`/api/articles/${article._id}?vote=up`)
-          .expect(201)
-          .then(res => {
-            expect(res.body.article.votes).to.equal(article.votes + 1);
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articleWithCommentCount.votes).to.equal(article.votes + 1);
+            expect(body.articleWithCommentCount.commentCount).to.equal(2);
           })
       })
-      it('PATCH returns 201 and handles downvotes correctly', () => {
+      it('PATCH returns 200 and handles downvotes correctly', () => {
         return request.patch(`/api/articles/${article._id}?vote=down`)
-          .expect(201)
-          .then(res => {
-            expect(res.body.article.votes).to.equal(article.votes - 1);
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articleWithCommentCount.votes).to.equal(article.votes - 1);
+            expect(body.articleWithCommentCount.commentCount).to.equal(2);
           })
       })
       it('PATCH returns 400 when the article ID is invalid', () => {
@@ -149,6 +174,10 @@ describe('/api', () => {
           .then(({ body }) => {
             expect(body.msg).to.equal(`${topic._id} not found`);
           })
+      })
+      it('PATCH returns 204 when no valid content is provided', () => {
+        return request.patch(`/api/articles/${article._id}?faces=big`)
+          .expect(204)
       })
     })
     describe('/:article_id/comments', () => {
@@ -190,7 +219,11 @@ describe('/api', () => {
           expect(res.body.comment.body).to.equal(newComment.body);
           expect(res.body.comment.belongs_to).to.equal(`${article._id}`);
           expect(res.body.comment.created_by._id).to.equal(`${user._id}`);
+          return Comment.count({ belongs_to: article._id })
         })
+          .then (commentCount => {
+            expect(commentCount).to.equal(3);
+          })
       })
       it('POST returns 400 when failing validation rules', () => {
         const newComment = 
@@ -206,20 +239,29 @@ describe('/api', () => {
           expect(body.msg.slice(0,27)).to.equal('comments validation failed:')
         })
       })
+      it('POST returns 409 when the provided article already exists', () => {
+        return request
+        .post(`/api/articles/${article._id}/comments/`)
+        .send(comment)
+        .expect(409)
+        .then(({ body }) => {
+          expect(body.msg).to.equal('Comment already exists')
+        })
+        })
     })
   })
   describe('/comments', () => {
     describe('/:comment_id', () => {
-      it('PATCH returns 201 and handles upvotes correctly', () => {
+      it('PATCH returns 200 and handles upvotes correctly', () => {
         return request.patch(`/api/comments/${comment._id}?vote=up`)
-          .expect(201)
+          .expect(200)
           .then(res => {
             expect(res.body.comment.votes).to.equal(comment.votes + 1);
           })
       })
-      it('PATCH returns 201 and handles downvotes correctly', () => {
+      it('PATCH returns 200 and handles downvotes correctly', () => {
         return request.patch(`/api/comments/${comment._id}?vote=down`)
-          .expect(201)
+          .expect(200)
           .then(res => {
             expect(res.body.comment.votes).to.equal(comment.votes - 1);
           })
@@ -238,9 +280,20 @@ describe('/api', () => {
             expect(body.msg).to.equal(`${topic._id} not found`);
           })
       })
-      it('DELETE returns 201 and removes the document', () => {
+      it('PATCH returns 204 when no valid content is provided', () => {
+        return request.patch(`/api/comments/${comment._id}?faces=big`)
+          .expect(204)
+      })
+      it('DELETE returns 200 and removes the document', () => {
         return request.delete(`/api/comments/${comment._id}`)
-          .expect(201)
+          .expect(200)
+          .then(( {body} ) => {
+          expect()
+          return Comment.count()
+        })
+          .then (commentCount => {
+            expect(commentCount).to.equal(7);
+          })
       })
       it('DELETE returns 400 when the comment ID is invalid', () => {
         return request.delete(`/api/comments/randomID`)
@@ -260,12 +313,15 @@ describe('/api', () => {
   })
   describe('/users', () => {
     describe('/:username', () => {
-      it('GET returns 200 and the user profile', () => {
+      it('GET returns 200 and the user profile including comments and articles written by the user', () => {
         return request.get(`/api/users/dedekind561`)
           .expect(200)
-          .then(res => {
-            expect(res.body.user[0].username).to.equal(`dedekind561`);
-            expect(res.body.user[0].avatar_url).to.equal("https://carboncostume.com/wordpress/wp-content/uploads/2017/10/dale-chipanddalerescuerangers.jpg")
+          .then(({ body }) => {
+            expect(body.user.username).to.equal(`dedekind561`);
+            expect(body.user.avatar_url).to.equal("https://carboncostume.com/wordpress/wp-content/uploads/2017/10/dale-chipanddalerescuerangers.jpg")
+            expect(body.comments.length).to.equal(4);
+            expect(body.articles.length).to.equal(2);
+            expect(body.articles[0].title).to.equal("7 inspirational thought leaders from Manchester UK");
           })
       })
       it('GET returns 404 when the username is not found', () => {
@@ -274,11 +330,6 @@ describe('/api', () => {
           .then(({ body }) => {
             expect(body.msg).to.equal(`UserName not found`);
           })
-      })
-      after(() => {
-        mongoose.connection.close(() => {
-        console.log('Test database connection closed');
-        })
       })
     })
   })

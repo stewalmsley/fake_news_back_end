@@ -1,3 +1,9 @@
+
+exports.handle409 = ({status, msg}, req, res, next) => {
+    if (status === 409) res.status(status).send({ msg });
+    else (next({ status, msg }))
+}
+
 exports.handle404 = ({status, msg}, req, res, next) => {
     if (status === 404) res.status(status).send({ msg });
     else (next({ status, msg }))

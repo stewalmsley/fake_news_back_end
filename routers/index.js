@@ -5,6 +5,8 @@ const articleRouter = require('./articles.js');
 const commentsRouter = require('./comments.js');
 const usersRouter = require('./users.js');
 
+router.get("/", (req, res) => res.render('homepage'));
+
 router
 .use('/topics', topicsRouter)
 
