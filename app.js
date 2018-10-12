@@ -7,7 +7,7 @@ const router = require('./routers/index.js');
 const { handle204, handle409, handle404, handle400, handle500 } = require('./error-handlers')
 app.use(bodyParser.json()), 
 app.use(express.static('public'))
-
+console.log(process.env)
 mongoose.connect(DB_URL, { useNewUrlParser: true })
 .then (() => {
     console.log('connected')
