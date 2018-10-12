@@ -1,13 +1,13 @@
 const express = require("express")
 const app = express();
-const { DB_URL } = process.env.MONGO_URI || require('./db/config.js');
+const DB_URL  = process.env.MONGO_URI || require('./db/config.js').DB_URL;
 const mongoose = require('mongoose');
 const bodyParser = require("body-parser");
 const router = require('./routers/index.js');
 const { handle204, handle409, handle404, handle400, handle500 } = require('./error-handlers')
 app.use(bodyParser.json()), 
 app.use(express.static('public'))
-console.log(process.env)
+console.log(process.env.MONGO_URI)
 mongoose.connect(DB_URL, { useNewUrlParser: true })
 .then (() => {
     console.log('connected')
