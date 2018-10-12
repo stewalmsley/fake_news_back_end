@@ -11,8 +11,8 @@ Prerequisites
 This project runs with NODE - further dependencies can be installed using NPM Install.
 Packages used are Express, Body-Parser, Mongoose. 
 Chai, Mocha and SuperTest are required for testing.
-You can also install Nodemon in order to be able to run the npm run start command defined in the Package.JSON, 
-which allows you to test the server application by sending get, post or patch requests from Postman or a browser. Nodemon dynamically updates your application if you make changes while it is running. 
+
+fork, clone, cd, npm install, config, seed, testing
 
 Give examples
 Installing
@@ -24,7 +24,7 @@ npm i mongoose
 npm i chai
 npm i mocha
 npm i supertest
-npm i nodemon
+
 
 Once you have everything in place, you should be able to run the NPM RUN SEED command defined in the Package JSON to seed the development data into the Mongo Database. If you go to the Seed.js file in the Seed folder, 
 and un-comment the console.log on line 24, then run NPM RUN SEED > test.txt you should be able to export all the seeded development data to a text file. 

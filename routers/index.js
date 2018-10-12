@@ -4,8 +4,9 @@ const topicsRouter = require('./topics.js');
 const articleRouter = require('./articles.js');
 const commentsRouter = require('./comments.js');
 const usersRouter = require('./users.js');
+router.use(express.static('public'))
 
-router.get("/", (req, res) => res.render('homepage'));
+router.get("/", (req, res) => res.sendFile('index.html'))
 
 router
 .use('/topics', topicsRouter)
