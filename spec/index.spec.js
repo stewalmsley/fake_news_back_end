@@ -247,7 +247,7 @@ describe('/api', () => {
         .then(({ body }) => {
           expect(body.msg).to.equal('Comment already exists')
         })
-        })
+      })
     })
   })
   describe('/comments', () => {
