@@ -1,7 +1,7 @@
 const { Comment, User }  = require('../models')
 
 exports.sendCommentsByArticle = (request, response, next) => {
-    Comment.find({ belongs_to : request.params.article_id })
+    Comment.find({ belongs_to : request.params.article_id }).populate('created_by').populate('belongs_to')
     .then(comments => {
         if (!comments.length) {
                 return Promise.reject({ status: 404, msg: `comments for ${request.params.article_id} not found`})
@@ -18,7 +18,7 @@ exports.addCommentToArticle = (request, response, next) => {
     User.findById(request.body.created_by)
     .then(user => {
         const belongs_to = request.params.article_id;
-        const newComment = request.body;
+        const newComment = (({ body }) => ({ body }))(request.body);
         newComment.belongs_to = belongs_to;
         newComment.created_by = user;
         const comment = new Comment(newComment);

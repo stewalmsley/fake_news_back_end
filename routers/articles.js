@@ -7,11 +7,13 @@ articleRouter
 .get('/', sendAllArticles);
 
 articleRouter
-.get('/:article_id', sendArticleByID)
-.patch('/:article_id', updateArticleVotes);
+.route('/:article_id')
+.get(sendArticleByID)
+.patch(updateArticleVotes);
 
 articleRouter
-.get('/:article_id/comments', sendCommentsByArticle)
-.post('/:article_id/comments', addCommentToArticle)
+.route('/:article_id/comments')
+.get(sendCommentsByArticle)
+.post(addCommentToArticle)
 
 module.exports = articleRouter;

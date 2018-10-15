@@ -1,4 +1,5 @@
 const { Topic, Article, Comment }  = require('../models')
+const { addCommentCountToOne, addCommentCountToMany } = require('../utils/commentcount.js')
 
 exports.sendAllTopics = (request, response, next) => {
     Topic.find()
@@ -10,32 +11,20 @@ exports.sendAllTopics = (request, response, next) => {
 
 exports.sendArticlesByTopic = (request, response, next) => {
     let articlesByTopic;
-    Article.find({belongs_to: request.params.topic_slug}).lean()
+    Article.find({belongs_to: request.params.topic_slug}).populate('created_by').lean()
     .then(articles => {
         if (!articles.length) {
             return Promise.reject({ status: 404, msg: `no articles found on ${request.params.topic_slug}`})
         }
-        articlesByTopic = [...articles];
-        const commentCountsByArticle = articles.map(article => {
-            return Comment.count({belongs_to: article._id}).lean()
-        })
-        return Promise.all(commentCountsByArticle)
-    })
-    .then((commentCounts) => {
-        const articlesWithCommentCounts = articlesByTopic.map((article, index) => {
-            let commentCount = commentCounts[index];
-            return {...article, commentCount}
-        })
-        response.status(200).send({ articlesWithCommentCounts })
+        addCommentCountToMany(articles, articlesByTopic)
+        .then(articlesWithCommentCounts => response.status(200).send({ articlesWithCommentCounts }))
     })
     .catch(next);
 }
 
-
-
 exports.addArticleByTopic = (request, response, next) => {
     const belongs_to = request.params.topic_slug;
-    const newArticle = request.body;
+    const newArticle = (({ title, created_by, body }) => ({ title, created_by, body }))(request.body);
     newArticle.belongs_to = belongs_to;
     const article = new Article(newArticle)
     article.save()

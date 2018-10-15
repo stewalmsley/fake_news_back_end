@@ -1,4 +1,5 @@
-NorthCoders News Dashboard - https://steve-news.herokuapp.com/
+## NorthCoders News Dashboard ##
+https://steve-news.herokuapp.com/
 
 This Project provides a backend to be used in an interactive news app, allowing users to search for user profiles, articles by topic, post articles, comment on articles, up/down vote articles and comments, and delete comments.
 
@@ -12,8 +13,6 @@ This project runs with NODE - further dependencies can be installed using NPM In
 Packages used are Express, Body-Parser, Mongoose. 
 Chai, Mocha and SuperTest are required for testing.
 
-fork, clone, cd, npm install, config, seed, testing
-
 Fork the repositary and clone it. From the terminal, CD into the repositary, and then run code . 
 in your terminal to open the repositary in Visual Studio Code.
 
@@ -24,9 +23,11 @@ npm install
 ```
 You will also need to set up a config file in the DB folder, as per the below:
 
-const NODE_ENV = process.env.NODE_ENV || 'development';
 
 ```js
+
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
 const config = {
     test : 'mongodb://localhost:27017/news_test',
     development : 'mongodb://localhost:27017/news',
@@ -34,8 +35,7 @@ const config = {
       exports.DB_URL = config[NODE_ENV];
 ```
 
-Once you have everything in place, you should be able to run the NPM RUN SEED-DEV command defined in the Package JSON to seed the development data into the Mongo Database. If you go to the Seed.js file in the Seed folder, 
-and un-comment the console.log on line 24, then run NPM RUN SEED > test.txt you should be able to export all the seeded development data to a text file. 
+Then run the NPM RUN SEED-DEV command defined in the Package JSON to seed the development data into the Mongo Database. 
 
 You should also now be able to run NPM TEST in order to run tests. The test file seeds the test database before every test and checks that all the endpoints are functioning and have error handling in place. For example:
 
@@ -54,14 +54,13 @@ The test suite runs the seedDB function required in from the seed folder, which 
 an article, comment, user and topic from the test database. This is then used for logic checks in the test
 suite. 
 
-Deployment
+The project can be deployed live on Heroku:
+https://dashboard.heroku.com/apps
+with data stored in MLab:
+https://mlab.com/
 
-This can be deployed live on Heroku, with data stored in MLab. 
-To do this you can create free accounts with Heroku and MLab. 
-You will need to update your config file with the URL for MLab before seeding the database into production.
-Once you create a project on Heroku you will need to add the MLAB URL into the project settings in Heroku. 
-The app and listen files in this repositary are set up to work from Heroku via process.env, or to run on dev/test as appropriate. 
+Here is my live deployed version: https://steve-news.herokuapp.com/
 
 
-Authors
-Steve Walmsley - under instructions from NorthCoders
+Author:
+Steve Walmsley - learning Javascript at NorthCoders

@@ -95,14 +95,11 @@ describe('/api', () => {
         expect(body.msg.slice(0,27)).to.equal('articles validation failed:')
       })
       })
-      it('POST returns 409 when the provided article already exists', () => {
+      it('POST returns 201 and creates the article with a new ID, even if an ID is provided', () => {
       return request
       .post('/api/topics/cats/articles/')
       .send(article)
-      .expect(409)
-      .then(({ body }) => {
-        expect(body.msg).to.equal('Article already exists')
-      })
+      .expect(201)
       })
     })
   })
@@ -239,14 +236,11 @@ describe('/api', () => {
           expect(body.msg.slice(0,27)).to.equal('comments validation failed:')
         })
       })
-      it('POST returns 409 when the provided article already exists', () => {
+      it('POST returns 201 and adds the comment with a new ID even when an ID is provided', () => {
         return request
         .post(`/api/articles/${article._id}/comments/`)
         .send(comment)
-        .expect(409)
-        .then(({ body }) => {
-          expect(body.msg).to.equal('Comment already exists')
-        })
+        .expect(201)
       })
     })
   })

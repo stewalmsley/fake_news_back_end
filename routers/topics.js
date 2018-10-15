@@ -6,7 +6,8 @@ topicsRouter
 .get('/', sendAllTopics);
 
 topicsRouter
-.get('/:topic_slug/articles', sendArticlesByTopic)
-.post('/:topic_slug/articles', addArticleByTopic)
+.route('/:topic_slug/articles')
+.get(sendArticlesByTopic)
+.post(addArticleByTopic)
 
 module.exports = topicsRouter;

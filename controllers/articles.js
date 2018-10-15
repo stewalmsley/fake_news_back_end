@@ -1,23 +1,18 @@
 const { Article, Comment }  = require('../models')
+const { addCommentCountToOne, addCommentCountToMany } = require('../utils/commentcount.js')
 
 exports.sendAllArticles = (request, response, next) => {
-    return Promise.all([Article.find().lean(), Comment.find().lean()])
-    .then(([articles, comments]) => {
-        const articlesWithCommentCounts = articles.map(article => {
-            const commentCount = comments.filter(comment => comment.belongs_to.toString() === article._id.toString()).length;
-            return {...article, commentCount}
-        })
-        response.status(200).send({ articlesWithCommentCounts })
-    })
+    let articlesByTopic;
+    Article.find().populate('created_by').lean()
+    .then(articles => addCommentCountToMany(articles, articlesByTopic))
+    .then(articlesWithCommentCounts => response.status(200).send({ articlesWithCommentCounts }))
     .catch(next);
 }
 
 exports.sendArticleByID = (request, response, next) => {
-    Article.findById(request.params.article_id).lean()
-    .then(article => {
-        if (!article) return Promise.reject({ status: 404, msg: `${request.params.article_id} not found`})
-        return Promise.all([article, Comment.count({belongs_to: request.params.article_id})]);
-    })
+    const id = request.params.article_id
+    Article.findById(id).populate('created_by').lean()
+    .then((article) => addCommentCountToOne(article, id))
     .then(([article, commentCount]) => {
         const articleWithCommentCount = {...article, commentCount};
         response.status(200).send({ articleWithCommentCount })
@@ -29,14 +24,12 @@ exports.sendArticleByID = (request, response, next) => {
 }
 
 exports.updateArticleVotes = (request, response, next) => {
+    const id = request.params.article_id
     let increment = 0;
     if (request.query.vote === 'up') increment = 1 
     if (request.query.vote === 'down') increment = -1;
-    Article.findOneAndUpdate({_id: request.params.article_id}, {$inc: {votes: increment} }, {new: true})
-    .then(article => {
-        if (!article) return Promise.reject({ status: 404, msg: `${request.params.article_id} not found`})
-        return Promise.all([article, Comment.count({belongs_to: request.params.article_id})]);
-    })
+    Article.findOneAndUpdate({_id: id}, {$inc: {votes: increment} }, {new: true}).populate('created_by')
+    .then(article => addCommentCountToOne(article, id))
     .then(([article, commentCount]) => {
         const articleWithCommentCount = {...article.toObject(), commentCount};
         if (!increment) response.status(204).send({ articleWithCommentCount })
