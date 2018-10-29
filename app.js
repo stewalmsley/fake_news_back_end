@@ -13,6 +13,11 @@ mongoose.connect(DB_URL, { useNewUrlParser: true })
 
 app.use(bodyParser.json()), 
 app.use(express.static('public'))
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 app.get('/', (req, res, next) => res.sendFile('index.html'))
 app.use("/api", router);
 app.use('/*', (req, res, next) => next({ status: 404, msg: `${req.originalUrl} does not exist`}));
