@@ -305,7 +305,7 @@ describe('/api', () => {
       })
     })
   })
-  describe('/users', () => {
+  describe.only('/users', () => {
     describe('/:username', () => {
       it('GET returns 200 and the user profile including comments and articles written by the user', () => {
         return request.get(`/api/users/dedekind561`)
@@ -314,8 +314,8 @@ describe('/api', () => {
             expect(body.user.username).to.equal(`dedekind561`);
             expect(body.user.avatar_url).to.equal("https://carboncostume.com/wordpress/wp-content/uploads/2017/10/dale-chipanddalerescuerangers.jpg")
             expect(body.comments.length).to.equal(4);
-            expect(body.articles.length).to.equal(2);
-            expect(body.articles[0].title).to.equal("7 inspirational thought leaders from Manchester UK");
+            expect(body.articlesWithCommentCounts.length).to.equal(2);
+            expect(body.articlesWithCommentCounts[0].title).to.equal("7 inspirational thought leaders from Manchester UK");
           })
       })
       it('GET returns 404 when the username is not found', () => {
