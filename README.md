@@ -37,7 +37,7 @@ const config = {
 
 Then run the NPM RUN SEED-DEV command defined in the Package JSON to seed the development data into the Mongo Database. 
 
-You should also now be able to run NPM TEST in order to run tests. The test file seeds the test database before every test and checks that all the endpoints are functioning and have error handling in place. For example:
+Run NPM TEST in order to run tests. The test file seeds the test database before every test and checks that all the endpoints are functioning and have error handling in place. For example:
 
 ```js
  it('PATCH returns 200 and handles downvotes correctly', () => {
