@@ -176,6 +176,31 @@ describe('/api', () => {
         return request.patch(`/api/articles/${article._id}?faces=big`)
           .expect(204)
       })
+      it('DELETE returns 200 and removes the document', () => {
+        return request.delete(`/api/articles/${article._id}`)
+          .expect(200)
+          .then(( {body} ) => {
+          expect()
+          return Article.count()
+        })
+          .then (articleCount => {
+            expect(articleCount).to.equal(3);
+          })
+      })
+      it('DELETE returns 400 when the article ID is invalid', () => {
+        return request.delete(`/api/articles/randomID`)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Invalid Article ID');
+          })
+      })
+      it('DELETE returns 404 when the article ID is valid but not found', () => {
+        return request.delete(`/api/articles/${topic._id}`)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal(`${topic._id} not found`);
+          })
+      })
     })
     describe('/:article_id/comments', () => {
       it('GET returns 200 and the provided article', () => {

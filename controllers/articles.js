@@ -23,6 +23,20 @@ exports.sendArticleByID = (request, response, next) => {
     })
 }
 
+exports.deleteArticle = (request, response, next) => {
+    Article.findByIdAndRemove(request.params.article_id)
+    .then((article) => {
+        if (!article) {
+            return Promise.reject({ status: 404, msg: `${request.params.article_id} not found`})
+        }
+        response.status(200).send('removed record')
+    })
+    .catch(err => {
+        if (err.name === 'CastError') next({status: 400, msg: 'Invalid Article ID'});
+        else next(err);
+    })
+}
+
 exports.updateArticleVotes = (request, response, next) => {
     const id = request.params.article_id
     let increment = 0;

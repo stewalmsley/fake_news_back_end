@@ -1,6 +1,6 @@
 const express = require('express');
 const articleRouter = express.Router();
-const { sendAllArticles, sendArticleByID, updateArticleVotes} = require('../controllers/articles.js')
+const { sendAllArticles, sendArticleByID, updateArticleVotes, deleteArticle} = require('../controllers/articles.js')
 const { sendCommentsByArticle, addCommentToArticle } = require('../controllers/comments.js')
 
 articleRouter
@@ -9,7 +9,8 @@ articleRouter
 articleRouter
 .route('/:article_id')
 .get(sendArticleByID)
-.patch(updateArticleVotes);
+.patch(updateArticleVotes)
+.delete(deleteArticle);
 
 articleRouter
 .route('/:article_id/comments')
