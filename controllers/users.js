@@ -1,5 +1,13 @@
 const { User, Comment, Article }  = require('../models')
 
+exports.sendAllUsers = (request, response, next) => {
+    User.find()
+    .then(users => {
+        response.status(200).send({ users })
+    })
+    .catch(next);
+}
+
 exports.sendUser = (request, response, next) => {
     User.findOne(request.params).lean()
     .then(user => {

@@ -305,7 +305,16 @@ describe('/api', () => {
       })
     })
   })
-  describe.only('/users', () => {
+  describe('/users', () => {
+    describe('/', () => {
+      it('GET returns 200 and all users', () => {
+        return request.get('/api/users')
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users.length).to.equal(2);
+        })
+      })
+    })
     describe('/:username', () => {
       it('GET returns 200 and the user profile including comments and articles written by the user', () => {
         return request.get(`/api/users/dedekind561`)
