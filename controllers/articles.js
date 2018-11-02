@@ -1,11 +1,14 @@
 const { Article, Comment }  = require('../models')
-const { addCommentCountToOne, addCommentCountToMany } = require('../utils/commentcount.js')
+const { addCommentCountToOne, addCommentCountToMany, addAuthorsAndTopics } = require('../utils/commentcount.js')
 
 exports.sendAllArticles = (request, response, next) => {
     let articlesByTopic;
     Article.find().populate('created_by').lean()
     .then(articles => addCommentCountToMany(articles, articlesByTopic))
-    .then(articlesWithCommentCounts => response.status(200).send({ articlesWithCommentCounts }))
+    .then(articlesWithCommentCounts => {
+        const topicsAndAuthors = addAuthorsAndTopics(articlesWithCommentCounts)
+        response.status(200).send({ articlesWithCommentCounts, topicsAndAuthors })
+    })
     .catch(next);
 }
 

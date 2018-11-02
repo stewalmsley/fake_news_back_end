@@ -19,3 +19,23 @@ exports.addCommentCountToMany = (articles, placeHolder) => {
         return Promise.all(articlesWithCommentCounts)
     })
 }
+
+exports.addAuthorsAndTopics = (articles) => {
+    const authors = []
+    const topics = []
+    for (let i = 0; i < articles.length; i++) {
+        const authorIndex = authors.findIndex(author => author._id == articles[i].created_by._id)
+        if (authorIndex === -1) authors.push({...articles[i].created_by, articleCount: 1, receivedCommentCount: articles[i].commentCount})
+        else {
+            authors[authorIndex].articleCount ++
+            authors[authorIndex].receivedCommentCount += articles[i].commentCount
+        }
+        const topicIndex = topics.findIndex(topic => topic.slug == articles[i].belongs_to)
+        if (topicIndex === -1) topics.push({slug: articles[i].belongs_to, articleCount: 1, commentCount: articles[i].commentCount})
+        else {
+            topics[topicIndex].articleCount ++
+            topics[topicIndex].commentCount += articles[i].commentCount
+        }
+    }
+    return {authors, topics}
+    }
