@@ -31,7 +31,7 @@ exports.addAuthorsAndTopics = (articles) => {
             authors[authorIndex].receivedCommentCount += articles[i].commentCount
         }
         const topicIndex = topics.findIndex(topic => topic.slug == articles[i].belongs_to)
-        if (topicIndex === -1) topics.push({slug: articles[i].belongs_to, articleCount: 1, commentCount: articles[i].commentCount})
+        if (topicIndex === -1) topics.push({ slug: articles[i].belongs_to, articleCount: 1, commentCount: articles[i].commentCount, title: articles[i].belongs_to[0].toUpperCase() + article.belongs_to.substring(1)})
         else {
             topics[topicIndex].articleCount ++
             topics[topicIndex].commentCount += articles[i].commentCount
