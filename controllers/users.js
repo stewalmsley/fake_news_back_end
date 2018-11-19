@@ -1,29 +1,33 @@
-const { User, Comment, Article }  = require('../models')
+const { User, Comment, Article } = require("../models");
+const { addCommentCountToMany } = require("../utils/commentcount.js");
 
 exports.sendAllUsers = (request, response, next) => {
-    User.find()
+  User.find()
     .then(users => {
-        response.status(200).send({ users })
+      response.status(200).send({ users });
     })
     .catch(next);
-}
+};
 
 exports.sendUser = (request, response, next) => {
-    User.findOne(request.params).lean()
-    .then(user => {
-        if (!user) return Promise.reject({ status : 404, msg: 'UserName not found'})
-        return Promise.all([user, Comment.find({created_by: user._id}).lean(), Article.find({created_by: user._id}).lean()]);
+  let user = {};
+  let articles = [];
+  let comments = [];
+  User.findOne(request.params)
+    .lean()
+    .then(returnedUser => {
+      if (!returnedUser)
+        return Promise.reject({ status: 404, msg: "UserName not found" });
+      user = returnedUser;
+      return Promise.all([
+        Comment.find({ created_by: user._id }).lean(),
+        Article.find({ created_by: user._id }).lean()
+      ]);
     })
-    .then(([user, comments, articles]) => {
-        const articlesWithCommentCounts = articles.map(article => {
-            const commentCount = comments.filter(comment => `${comment.belongs_to}` === `${article._id}`).length;
-            return {...article, commentCount}
-        })
-        response.status(200).send({ user, comments, articlesWithCommentCounts });
+    .then(([userComments, userArticles]) => {
+      comments = userComments;
+      return addCommentCountToMany(userArticles, articles)
     })
-    .catch(next)
-}
-
-
-
-
+    .then(articlesWithCommentCounts => response.status(200).send({ user, comments, articlesWithCommentCounts }))
+    .catch(next);
+};

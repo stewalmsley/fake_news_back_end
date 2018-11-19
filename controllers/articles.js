@@ -1,4 +1,4 @@
-const { Article, Comment }  = require('../models')
+const { Article }  = require('../models')
 const { addCommentCountToOne, addCommentCountToMany, addAuthorsAndTopics } = require('../utils/commentcount.js')
 
 exports.sendAllArticles = (request, response, next) => {

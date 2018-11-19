@@ -1,5 +1,5 @@
 const { Topic, Article, Comment }  = require('../models')
-const { addCommentCountToOne, addCommentCountToMany } = require('../utils/commentcount.js')
+const { addCommentCountToMany } = require('../utils/commentcount.js')
 
 exports.sendAllTopics = (request, response, next) => {
     Topic.find()
@@ -16,9 +16,9 @@ exports.sendArticlesByTopic = (request, response, next) => {
         if (!articles.length) {
             return Promise.reject({ status: 404, msg: `no articles found on ${request.params.topic_slug}`})
         }
-        addCommentCountToMany(articles, articlesByTopic)
-        .then(articlesWithCommentCounts => response.status(200).send({ articlesWithCommentCounts }))
+        return addCommentCountToMany(articles, articlesByTopic)
     })
+    .then(articlesWithCommentCounts => response.status(200).send({ articlesWithCommentCounts }))
     .catch(next);
 }
 
